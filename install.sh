@@ -36,21 +36,6 @@ echo "---------------------------------"
 echo "### 2. Downloading libraries...  "
 echo "---------------------------------"
 
-mkdir -p libs
-cd libs
-
-echo -ne "#### 2.1: Boost"
-
-if [ ! -d "boost_1_61_0" ]; then
-	wget 'https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz' -O boost.tar.gz
-	tar -xzf boost.tar.gz --verbose
-	rm boost_root.tar.gz
-	echo "...installed!"
-else
-	echo "...already installed!"
-fi
-
-cd ..
 
 echo "---------------------------------"
 echo "### 3. Running CMake...          "
@@ -67,4 +52,3 @@ echo "---------------------------------"
 make clean all
 
 echo "All done!"
-echo "Run ./bin/pmt --help for help on how to use this program"
