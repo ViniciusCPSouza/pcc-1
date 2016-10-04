@@ -13,9 +13,8 @@ project(${PROJECT_NAME})
 # --------------- SETTING VARS ---------------
 # dirs
 set(PROJECT_SOURCE_DECLARATION_DIRECTORY ${PROJECT_SOURCE_DIR}/include)
-set(PROJECT_SOURCE_DEFINITION_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
+file(GLOB SOURCES src/*.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-set(MAIN_FILE ${PROJECT_SOURCE_DEFINITION_DIRECTORY}/main.cpp)
 # flags
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -25,4 +24,4 @@ include_directories("libs")
 
 
 # --------------- INCLUDING EXECUTABLES ---------------
-add_executable (${PROJECT_NAME} ${MAIN_FILE})
+add_executable (${PROJECT_NAME} ${SOURCES})

@@ -1,7 +1,13 @@
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <vector>
-#include <optionparser.h>
+
+#include "optionparser.h"
+
+#include "brute_force.h"
+#include "utils.h"
+
 
 struct Arg: public option::Arg
 {
@@ -20,27 +26,29 @@ struct Arg: public option::Arg
 	}
 };
 
+const std::vector<std::string> algorithms = {"brute_force"};
 enum SearchType {EXACT, APPROXIMATED};
-enum  optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
+enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
 const option::Descriptor usage[] =
 {
 	// PARSER INDEX   TYPE  SHORT  LONG         CHECK FUNCTION     HELP TEXT
-	{HELP,            0,    "h" ,  "help",      option::Arg::None, "--help\tPrint usage and exit."},
-	{EDIT,            0,    "e",   "edit",      Arg::NonEmpty,     "--edit e_max\t.The maxium edit distance when searching for approximate patterns."},
-	{PATTERN_FILE,    0,    "p",   "pattern",   Arg::NonEmpty,     "--pattern patternfile\tA file with the patterns that should be searched."},
-	{ALGORITHM,       0,    "a",   "algorithm", Arg::NonEmpty,     "--algorithm algorithm_name\t.Which algorithm to use." },
-	{COUNT,           0,    "c",   "count",     option::Arg::None, "--count\t.Only print the total number of occurrences found on each file."},
+	{HELP,            0,    "h" ,  "help",      option::Arg::None, "--help,-h\t Print usage and exit."},
+	{EDIT,            0,    "e",   "edit",      Arg::NonEmpty,     "--edit,-e e_max\t The maxium edit distance when searching for approximate patterns."},
+	{PATTERN_FILE,    0,    "p",   "pattern",   Arg::NonEmpty,     "--pattern,-p patternfile\t A file with the patterns that should be searched."},
+	{ALGORITHM,       0,    "a",   "algorithm", Arg::NonEmpty,     std::string("--algorithm,-a algorithm_name\t Which algorithm to use. Options are: " + utils::join(algorithms, ",")).c_str()},
+	{COUNT,           0,    "c",   "count",     option::Arg::None, "--count,-c\t Only print the total number of occurrences found on each file."},
 	{0,0,0,0,0,0}
 };
 
 
 int main(int argc, char** argv)
 {
-   std::string algorithm = "NAIVE";
+   std::string algorithm = "brute_force";
+   std::vector<PatternOccurrence> (*search_function)(std::string,std::string,int) = NULL;
    int edit = 0;
    bool count = false;
    std::string pattern_file = "";
-   SearchType searchType = EXACT;
+   SearchType search_type = EXACT;
    std::string pattern = "";
    std::vector<std::string> text_files;
 
@@ -66,7 +74,7 @@ int main(int argc, char** argv)
    if (options[COUNT])
    {
 	 	count = true;
-	 	searchType = APPROXIMATED;
+	 	search_type = APPROXIMATED;
    }
 
    // pattern file was given, all the positional args are text files
@@ -112,7 +120,7 @@ int main(int argc, char** argv)
    std::cout << "#### ARGS ####" << std::endl;
    std::cout << "Pattern: " << pattern << std::endl;
    std::cout << "Count: " << count << std::endl;
-   std::cout << "Search Type: " << searchType << std::endl;
+   std::cout << "Search Type: " << search_type << std::endl;
    std::cout << "Edit: " << edit << std::endl;
    std::cout << "Algorithm: " << algorithm << std::endl;
    std::cout << "Pattern File: " << pattern_file << std::endl;
