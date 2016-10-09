@@ -85,6 +85,11 @@ int main(int argc, char** argv)
    if (algorithm == "brute_force") {
       search_function = &brute_force::search;
    }
+   else
+   {
+    std::cerr << "Invalid algorithm '" << algorithm << "'!" << std::endl;
+    return 1;
+   }
 
    // pattern file was given, all the positional args are text files
    if (pattern_file != "")
@@ -123,6 +128,7 @@ int main(int argc, char** argv)
    if (parse.nonOptionsCount() < 2)
    {
    	std::cerr << "" << std::endl;
+    return 1;
    }
 
 	// // DEBUG: print args
@@ -151,6 +157,7 @@ int main(int argc, char** argv)
     catch (const std::exception& e)
     {
       std::cerr << "Could not read the patterns file! Error:\n" << e.what() << std::endl;
+      return 1;
     }
   }
   else {

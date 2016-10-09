@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 namespace utils {
