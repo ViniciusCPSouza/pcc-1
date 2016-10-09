@@ -10,15 +10,28 @@ namespace brute_force {
 		int line_count = 0;
 		while (std::getline(file, line))
 		{
-			std::string::size_type start_pos = 0;
-			while (( start_pos = line.find( pattern, start_pos ) ) != std::string::npos)
+			// TEXT
+			for (int t = 0; t < line.length(); t++)
 			{
-			  data::PatternOccurrence occ;
-				occ.text = line;
-				occ.line = line_count;
-				occ.column = start_pos;
-				results.push_back(occ);
-			  start_pos++;
+				// PATTERN
+				bool found = true;
+				for (int p = 0; p < pattern.length(); p++)
+				{
+					if (pattern[p] != line[t + p])
+					{
+						found = false;
+						break;
+					}
+				}
+
+				if (found)
+				{
+					data::PatternOccurrence occ;
+					occ.text = line;
+					occ.line = line_count;
+					occ.column = t;
+					results.push_back(occ);
+				}
 			}
 			line_count++;
 		}
