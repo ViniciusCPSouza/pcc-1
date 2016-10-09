@@ -1,6 +1,5 @@
 #include "brute_force.h"
 
-
 namespace brute_force {
 	std::vector<data::PatternOccurrence> search(std::string filename, std::string pattern, int edit)
 	{

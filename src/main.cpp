@@ -8,6 +8,8 @@
 
 #include "pattern_occurrence.h"
 #include "brute_force.h"
+#include "kmp.h"
+#include "boyer_moore.h"
 #include "utils.h"
 
 
@@ -28,7 +30,7 @@ struct Arg: public option::Arg
 	}
 };
 
-const std::vector<std::string> algorithms = {"brute_force"};
+const std::vector<std::string> algorithms = {"brute_force", "kmp", "boyer_moore"};
 enum SearchType {EXACT, APPROXIMATED};
 enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
 const option::Descriptor usage[] =
@@ -84,6 +86,12 @@ int main(int argc, char** argv)
    // Set the algorithm
    if (algorithm == "brute_force") {
       search_function = &brute_force::search;
+   }
+   else if (algorithm == "kmp") {
+      search_function = &kmp::search;
+   }
+   else if (algorithm == "boyer_moore") {
+      search_function = &boyer_moore::search;
    }
    else
    {
