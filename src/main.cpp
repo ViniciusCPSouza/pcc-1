@@ -1,10 +1,12 @@
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <string>
 #include <vector>
 
 #include "optionparser.h"
 
+#include "pattern_occurrence.h"
 #include "brute_force.h"
 #include "utils.h"
 
@@ -44,7 +46,7 @@ const option::Descriptor usage[] =
 int main(int argc, char** argv)
 {
    std::string algorithm = "brute_force";
-   std::vector<PatternOccurrence> (*search_function)(std::string,std::string,int) = NULL;
+   std::vector<data::PatternOccurrence> (*search_function)(std::string,std::string,int) = NULL;
    int edit = 0;
    bool count = false;
    std::string pattern_file = "";
@@ -70,11 +72,18 @@ int main(int argc, char** argv)
 
    if (options[EDIT]) edit = std::stoi(options[EDIT].arg);
    if (options[PATTERN_FILE]) pattern_file = options[PATTERN_FILE].arg;
-   if (options[ALGORITHM]) algorithm = options[ALGORITHM].arg;
    if (options[COUNT])
    {
 	 	count = true;
 	 	search_type = APPROXIMATED;
+   }
+   if (options[ALGORITHM])
+   {
+   	algorithm = options[ALGORITHM].arg;
+   }
+   // Set the algorithm
+   if (algorithm == "brute_force") {
+      search_function = &brute_force::search;
    }
 
    // pattern file was given, all the positional args are text files
@@ -116,19 +125,68 @@ int main(int argc, char** argv)
    	std::cerr << "" << std::endl;
    }
 
-   // DEBUG: print args
-   std::cout << "#### ARGS ####" << std::endl;
-   std::cout << "Pattern: " << pattern << std::endl;
-   std::cout << "Count: " << count << std::endl;
-   std::cout << "Search Type: " << search_type << std::endl;
-   std::cout << "Edit: " << edit << std::endl;
-   std::cout << "Algorithm: " << algorithm << std::endl;
-   std::cout << "Pattern File: " << pattern_file << std::endl;
-   std::cout << "Text Files: " << std::endl;
-   for (std::vector<std::string>::iterator it = text_files.begin(); it < text_files.end(); it++)
-   {
-   	std::cout << "\t" << *it << std::endl;
-   }
+	// // DEBUG: print args
+	// std::cout << "######### ARGS #########" << std::endl;
+	// std::cout << "Pattern: " << pattern << std::endl;
+	// std::cout << "Count: " << count << std::endl;
+	// std::cout << "Search Type: " << search_type << std::endl;
+	// std::cout << "Edit: " << edit << std::endl;
+	// std::cout << "Algorithm: " << algorithm << std::endl;
+	// std::cout << "Pattern File: " << pattern_file << std::endl;
+	// std::cout << "Text Files: " << std::endl;
+	// for (std::vector<std::string>::iterator it = text_files.begin(); it < text_files.end(); it++)
+	// {
+	// 	std::cout << "\t" << *it << std::endl;
+	// }
+	// std::cout << "########################" << std::endl;
+   
+  // setting up the patterns
+  std::vector<std::string> patterns;
+  if (pattern_file != "")
+  {
+    try
+    {
+      patterns = utils::getPatterns(pattern_file);
+    }
+    catch (const std::exception& e)
+    {
+      std::cerr << "Could not read the patterns file! Error:\n" << e.what() << std::endl;
+    }
+  }
+  else {
+    patterns.push_back(pattern);
+  }
+  
+  for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
+  {
+    std::cout << "##### PATTERN: '" << *pat << "' #####" << std::endl;
+    for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
+    {
+  		std::vector<data::PatternOccurrence> results = search_function(*tf, *pat, edit);
+      if (results.size() > 0)
+      {
+        std::cout << "### FILE: '" << *tf << "' ###" << std::endl;
+        if (count)
+        {
+          std::cout << results.size() << std::endl;
+        }
+        else
+        {
+          std::map<int, bool> lines_printed;
+          for (std::vector<data::PatternOccurrence>::iterator it2 = results.begin(); it2 < results.end(); it2++)
+          {
+            data::PatternOccurrence occ = *it2;
+            // first time printing this line
+            if (lines_printed.count(occ.line) == 0)
+            {
+              lines_printed[occ.line] = true;
+              std::cout << occ.text << std::endl; 
+            }
+          }
+        }
+      }
+  	}
+  }
 
    return 0;
 }

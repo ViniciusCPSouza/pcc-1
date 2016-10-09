@@ -3,11 +3,14 @@
 
 #include <string>
 
-struct PatternOccurrence
+namespace data
 {
-	std::string file;
-	int line;
-	int column;
-};
+	typedef struct PatternOccurrence
+	{
+		std::string text;
+		int line;
+		int column;
+	} PatternOccurrence;
+}
 
 #endif

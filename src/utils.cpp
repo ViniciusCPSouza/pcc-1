@@ -11,4 +11,16 @@ namespace utils {
 		}
 		return ss.str();
 	}
+
+	std::vector<std::string> getPatterns(std::string filename)
+	{
+		std::vector<std::string> patterns;
+		std::ifstream file(filename);
+		std::string str;
+		while (std::getline(file, str))
+		{
+		  patterns.push_back(str);
+		}
+		return patterns;
+	}
 }
