@@ -14,17 +14,9 @@ namespace brute_force {
 			for (int t = 0; t < line.length(); t++)
 			{
 				// PATTERN
-				bool found = true;
-				for (int p = 0; p < pattern.length(); p++)
-				{
-					if (pattern[p] != line[t + p])
-					{
-						found = false;
-						break;
-					}
-				}
-
-				if (found)
+				int p = 0;
+				while (p < pattern.length() && (pattern[p] == line[t + p])) p++;
+				if (p >= pattern.length())
 				{
 					data::PatternOccurrence occ;
 					occ.text = line;
