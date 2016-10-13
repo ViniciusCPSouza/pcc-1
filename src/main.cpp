@@ -7,8 +7,11 @@
 #include "optionparser.h"
 
 #include "pattern_occurrence.h"
-#include "brute_force.h"
 #include "utils.h"
+
+#include "brute_force.h"
+#include "kmp.h"
+#include "shift_or.h"
 
 
 struct Arg: public option::Arg
@@ -28,7 +31,7 @@ struct Arg: public option::Arg
 	}
 };
 
-const std::vector<std::string> algorithms = {"brute_force"};
+const std::vector<std::string> algorithms = {"brute_force", "kmp", "shift_or"};
 enum SearchType {EXACT, APPROXIMATED};
 enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
 const option::Descriptor usage[] =
@@ -84,6 +87,12 @@ int main(int argc, char** argv)
    // Set the algorithm
    if (algorithm == "brute_force") {
       search_function = &brute_force::search;
+   }
+   else if (algorithm == "kmp") {
+      search_function = &kmp::search;
+   }
+   else if (algorithm == "shift_or") {
+      search_function = &shift_or::search;
    }
    else
    {
@@ -183,12 +192,13 @@ int main(int argc, char** argv)
           for (std::vector<data::PatternOccurrence>::iterator it2 = results.begin(); it2 < results.end(); it2++)
           {
             data::PatternOccurrence occ = *it2;
-            // first time printing this line
-            if (lines_printed.count(occ.line) == 0)
-            {
-              lines_printed[occ.line] = true;
-              std::cout << occ.text << std::endl; 
-            }
+            // // first time printing this line
+            // if (lines_printed.count(occ.line) == 0)
+            // {
+            //   lines_printed[occ.line] = true;
+            //   std::cout << occ.text << std::endl; 
+            // }
+            std::cout << occ.column << std::endl; 
           }
         }
       }

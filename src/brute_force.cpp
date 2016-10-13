@@ -1,6 +1,5 @@
 #include "brute_force.h"
 
-
 namespace brute_force {
 	std::vector<data::PatternOccurrence> search(std::string filename, std::string pattern, int edit)
 	{
@@ -11,15 +10,20 @@ namespace brute_force {
 		int line_count = 0;
 		while (std::getline(file, line))
 		{
-			std::string::size_type start_pos = 0;
-			while (( start_pos = line.find( pattern, start_pos ) ) != std::string::npos)
+			// TEXT
+			for (int t = 0; t < line.length(); t++)
 			{
-			  data::PatternOccurrence occ;
-				occ.text = line;
-				occ.line = line_count;
-				occ.column = start_pos;
-				results.push_back(occ);
-			  start_pos++;
+				// PATTERN
+				int p = 0;
+				while (p < pattern.length() && (pattern[p] == line[t + p])) p++;
+				if (p >= pattern.length())
+				{
+					data::PatternOccurrence occ;
+					occ.text = line;
+					occ.line = line_count;
+					occ.column = t;
+					results.push_back(occ);
+				}
 			}
 			line_count++;
 		}
