@@ -1,6 +1,7 @@
-#include "shift_or.h"
+#include "wu_mamber.h"
 
-namespace shift_or {
+namespace wu_mamber {
+
 	std::vector<data::PatternOccurrence> search(std::string filename, std::string pattern, int edit)
 	{
 		std::vector<data::PatternOccurrence> results;
@@ -15,19 +16,39 @@ namespace shift_or {
 			int line_count = 0;
 			while (std::getline(file, line))
 			{
-				int64_t s = ~1L;
+				std::vector<int64_t> s;
+				std::vector<int64_t> old_s;
+				int64_t s_add, s_miss, s_rplc = 0;
+				for (int q = 0; q <= edit; q++) s.push_back(~1L);
 
 				// ALGORITHM
 				for (int t = 0; t < line.length(); t++)
 				{
-					s |= bitMatrix[line[t]];
-					s <<= 1;
-					if ((s & (1L << pattern.length())) == 0)
+					old_s = s;
+					s[0] |= bitMatrix[line[t]];
+					s[0] <<= 1;
+
+					// for each edit distanece
+					for (int q = 1; q <= edit; q++)
+					{
+						// additional character
+						s_add = old_s[q - 1];
+
+						// missing character
+						s_miss = s[q - 1] << 1;
+
+						// substitution
+						s_rplc = (s_add & (old_s[q] | bitMatrix[line[t]])) << 1;
+
+						s[q] = s_add & s_miss & s_rplc;
+					}
+
+					if ((s[edit] & (1L << pattern.length())) == 0)
 					{
 						data::PatternOccurrence occ;
 						occ.text = line;
 						occ.line = line_count;
-						occ.column = t - pattern.length() + 1;
+						occ.column = t;		// last column instead of first
 						results.push_back(occ);
 					}
 				}

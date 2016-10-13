@@ -1,5 +1,5 @@
-#ifndef SHIFT_OR_H
-#define SHIFT_OR_H
+#ifndef WU_MAMBER_H
+#define WU_MAMBER_H
 
 #include <bitset>
 #include <iostream>
@@ -12,7 +12,7 @@
 #include "pattern_occurrence.h"
 #include "utils.h"
 
-namespace shift_or {
+namespace wu_mamber {
 	std::vector<data::PatternOccurrence> search(std::string filename, std::string pattern, int edit);
 }
 

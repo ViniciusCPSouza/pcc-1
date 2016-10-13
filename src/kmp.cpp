@@ -1,5 +1,4 @@
 #include "kmp.h"
-#include "utils.h"
 
 namespace kmp {
 	std::vector<data::PatternOccurrence> search(std::string filename, std::string pattern, int edit)

@@ -19,8 +19,8 @@ namespace utils {
 		std::string str;
 
 		if(file.fail()){
-	        throw std::runtime_error("Patterns file does not exist!");
-	    }
+      throw std::runtime_error("Patterns file does not exist!");
+    }
 
 		while (std::getline(file, str))
 		{
@@ -56,5 +56,17 @@ namespace utils {
 		}
 
 		return table;
+	}
+
+	// Build a matrix with the rows representing the characters of the alphabet
+	// and the columns being the positions of the pattern
+	std::vector<int64_t> getBitMatrix(std::string pattern)
+	{
+		std::vector<int64_t> bitMatrix;
+
+		for (int c = 0; c < 256; c++) bitMatrix.push_back(~0);
+		for (int p = 0; p < pattern.length(); p++) bitMatrix[pattern[p]] &= ~(1UL << p);
+
+		return bitMatrix;
 	}
 }
