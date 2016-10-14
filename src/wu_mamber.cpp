@@ -14,11 +14,15 @@ namespace wu_mamber {
 			std::ifstream file(filename);
 			std::string line;
 			int line_count = 0;
+
+			std::vector<int64_t> s;
+			std::vector<int64_t> old_s;
+			int64_t s_add, s_miss, s_rplc = 0;
 			while (std::getline(file, line))
 			{
-				std::vector<int64_t> s;
-				std::vector<int64_t> old_s;
-				int64_t s_add, s_miss, s_rplc = 0;
+				s.clear();
+				old_s.clear();
+				s_add, s_miss, s_rplc = 0;
 				for (int q = 0; q <= edit; q++) s.push_back(~1L);
 
 				// ALGORITHM

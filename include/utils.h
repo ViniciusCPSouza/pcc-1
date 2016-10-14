@@ -5,6 +5,7 @@
 #include <bitset>
 #include <fstream>
 #include <map>
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <stdexcept>

@@ -13,9 +13,10 @@ namespace shift_or {
 			std::ifstream file(filename);
 			std::string line;
 			int line_count = 0;
+			int64_t s = 0;
 			while (std::getline(file, line))
 			{
-				int64_t s = ~1L;
+				s = ~1L;
 
 				// ALGORITHM
 				for (int t = 0; t < line.length(); t++)
