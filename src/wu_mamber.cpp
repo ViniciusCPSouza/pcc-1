@@ -50,7 +50,6 @@ namespace wu_mamber {
 					if ((s[edit] & (1L << pattern.length())) == 0)
 					{
 						data::PatternOccurrence occ;
-						occ.text = line;
 						occ.line = line_count;
 						occ.column = t;		// last column instead of first
 						results.push_back(occ);

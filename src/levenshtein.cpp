@@ -41,7 +41,6 @@ namespace levenshtein {
 				if (row[c] <= edit)
 				{
 					data::PatternOccurrence occ;
-					occ.text = line;
 					occ.line = line_count;
 					occ.column = c - 1;		// last column instead of first
 					results.push_back(occ);

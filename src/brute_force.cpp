@@ -19,7 +19,6 @@ namespace brute_force {
 				if (p >= pattern.length())
 				{
 					data::PatternOccurrence occ;
-					occ.text = line;
 					occ.line = line_count;
 					occ.column = t;
 					results.push_back(occ);

@@ -7,7 +7,6 @@ namespace data
 {
 	typedef struct PatternOccurrence
 	{
-		std::string text;
 		int line;
 		int column;
 	} PatternOccurrence;

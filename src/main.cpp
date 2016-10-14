@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -157,18 +158,18 @@ int main(int argc, char** argv)
 			}
 	 }
 
-	// DEBUG: print args
-	std::cout << "###################### ARGS ######################" << std::endl;
-	std::cout << "Pattern: '" << pattern << "'" << std::endl;
-	std::cout << "Count: " << (count ? "yes" : "no") << std::endl;
-	std::cout << "Edit: " << edit << std::endl;
-	std::cout << "Algorithm: " << algorithm << std::endl;
-	std::cout << "Pattern File: " << pattern_file << std::endl;
-	std::cout << "Text Files: " << std::endl;
-	for (std::vector<std::string>::iterator it = text_files.begin(); it < text_files.end(); it++)
-	{
-		std::cout << "\t" << *it << std::endl;
-	}
+	// // DEBUG: print args
+	// std::cout << "###################### ARGS ######################" << std::endl;
+	// std::cout << "Pattern: '" << pattern << "'" << std::endl;
+	// std::cout << "Count: " << (count ? "yes" : "no") << std::endl;
+	// std::cout << "Edit: " << edit << std::endl;
+	// std::cout << "Algorithm: " << algorithm << std::endl;
+	// std::cout << "Pattern File: " << pattern_file << std::endl;
+	// std::cout << "Text Files: " << std::endl;
+	// for (std::vector<std::string>::iterator it = text_files.begin(); it < text_files.end(); it++)
+	// {
+	// 	std::cout << "\t" << *it << std::endl;
+	// }
 	 
 	// setting up the patterns
 	std::vector<std::string> patterns;
@@ -188,33 +189,41 @@ int main(int argc, char** argv)
 		patterns.push_back(pattern);
 	}
 	
-	std::cout << "#################### RESULTS #####################" << std::endl;
 	for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
 	{
-		std::cout << "##### PATTERN: '" << *pat << "' #####" << std::endl;
+		std::cout << "# PATTERN: '" << *pat << std::endl;
 		for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
 		{
 			std::vector<data::PatternOccurrence> results = search_function(*tf, *pat, edit);
 			if (results.size() > 0)
 			{
-				std::cout << "### FILE: '" << *tf << "' ###" << std::endl;
+				std::cout << "## FILE: '" << *tf << std::endl;
 				if (count)
 				{
 					std::cout << results.size() << std::endl;
 				}
 				else
 				{
-					std::map<int, bool> lines_printed;
+					std::map<int, bool> lines_to_print;
 					for (std::vector<data::PatternOccurrence>::iterator it2 = results.begin(); it2 < results.end(); it2++)
 					{
 						data::PatternOccurrence occ = *it2;
 						// first time printing this line
-						if (lines_printed.count(occ.line) == 0)
+						if (lines_to_print.count(occ.line) == 0)
 						{
-							 lines_printed[occ.line] = true;
-							 std::cout << occ.text << std::endl; 
+							 lines_to_print[occ.line] = true;
 						}
-						// std::cout << occ.column << std::endl;
+					}
+
+					// print the actual lines
+					std::ifstream file(*tf);
+					std::string line;
+					int line_count = 0;
+					while (std::getline(file, line))
+					{
+						// print this line
+						if (lines_to_print.count(line_count) != 0) std::cout << line << std::endl;
+						line_count++;
 					}
 				}
 			}

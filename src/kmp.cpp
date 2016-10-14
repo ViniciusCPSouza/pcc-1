@@ -30,7 +30,6 @@ namespace kmp {
 					if (p >= pattern.length())
 					{
 						data::PatternOccurrence occ;
-						occ.text = line;
 						occ.line = line_count;
 						occ.column = match_start;
 						results.push_back(occ);
