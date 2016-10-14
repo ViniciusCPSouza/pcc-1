@@ -13,6 +13,7 @@
 #include "kmp.h"
 #include "shift_or.h"
 #include "wu_mamber.h"
+#include "levenshtein.h"
 
 
 struct Arg: public option::Arg
@@ -32,7 +33,7 @@ struct Arg: public option::Arg
 	}
 };
 
-const std::vector<std::string> algorithms = {"brute_force", "kmp", "shift_or", "wu_mamber"};
+const std::vector<std::string> algorithms = {"brute_force", "kmp", "shift_or", "wu_mamber", "levenshtein"};
 enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
 const option::Descriptor usage[] =
 {
@@ -111,6 +112,10 @@ int main(int argc, char** argv)
 	 else if (algorithm == "wu_mamber")
 	 {
 			search_function = &wu_mamber::search;
+	 }
+	 else if (algorithm == "levenshtein")
+	 {
+			search_function = &levenshtein::search;
 	 }
 	 else
 	 {
