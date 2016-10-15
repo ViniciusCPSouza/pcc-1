@@ -47,7 +47,7 @@ const option::Descriptor usage[] =
 	{PATTERN_FILE,  0,    "p",   "pattern",         Arg::NonEmpty,     "--pattern,-p patternfile\t A file with the patterns that should be searched."},
 	{ALGORITHM,     0,    "a",   "algorithm",       Arg::NonEmpty,     std::string("--algorithm,-a algorithm_name\t Which algorithm to use. Options are: " + utils::join(algorithms, ",")).c_str()},
 	{COUNT,         0,    "c",   "count",           option::Arg::None, "--count,-c\t Only print the total number of occurrences found on each file."},
-	{REPORT_RUNTIME,0,    "r",   "report-runtime",  option::Arg::None, "--report-runtime,-c\t Write to a csv file the runtime of pattern on each file."},
+	{REPORT_RUNTIME,0,    "r",   "report-runtime",  option::Arg::None, "--report-runtime,-r\t Write to a csv file the runtime of pattern on each file."},
 	{0,0,0,0,0,0}
 };
 
