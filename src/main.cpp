@@ -186,13 +186,15 @@ int main(int argc, char** argv)
 	if (count)
 	{
 		int file_occs = 0;
+		int single_file_occs = 0;
 		for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
 		{
 			file_occs = 0;
 			for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
 			{
 				if (report) report_start = std::chrono::high_resolution_clock::now();
-				file_occs += search_function(*tf, *pat, edit).size();
+				single_file_occs = search_function(*tf, *pat, edit).size();
+				file_occs += single_file_occs;
 				if (report)
 				{
 					report_end = std::chrono::high_resolution_clock::now();
@@ -202,6 +204,7 @@ int main(int argc, char** argv)
 
 					report_line << *tf << "," << *pat << "," ;
 					report_line << edit << ",";
+					report_line << single_file_occs << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
 
 					runtimes.push_back(report_line.str());
@@ -232,6 +235,7 @@ int main(int argc, char** argv)
 
 					report_line << *tf << "," << *pat << "," ;
 					report_line << edit << ",";
+					report_line << results.size() << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
 
 					runtimes.push_back(report_line.str());
@@ -263,7 +267,7 @@ int main(int argc, char** argv)
 	if (report)
 	{
 		std::ofstream out("runtime.csv");
-		out << "filename,pattern,edit_distance,runtime" << std::endl;
+		out << "filename,pattern,edit_distance,matches,runtime" << std::endl;
 
 		for (std::vector<std::string>::iterator it = runtimes.begin(); it != runtimes.end(); it++)
 		{
