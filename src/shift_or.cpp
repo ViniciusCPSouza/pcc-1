@@ -34,6 +34,8 @@ namespace shift_or {
 
 				line_count++;
 			}
+
+			file.close();
 		}
 		else
 		{

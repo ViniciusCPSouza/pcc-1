@@ -26,6 +26,9 @@ namespace utils {
 		{
 		  patterns.push_back(str);
 		}
+
+		file.close();
+
 		return patterns;
 	}
 

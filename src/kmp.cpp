@@ -57,6 +57,8 @@ namespace kmp {
 			line_count++;
 		}
 
+		file.close();
+
 		return results;
 	}
 }

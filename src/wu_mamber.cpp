@@ -58,6 +58,8 @@ namespace wu_mamber {
 
 				line_count++;
 			}
+
+			file.close();
 		}
 		else
 		{

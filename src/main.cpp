@@ -1,7 +1,10 @@
+#include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -35,15 +38,16 @@ struct Arg: public option::Arg
 };
 
 const std::vector<std::string> algorithms = {"brute_force", "kmp", "shift_or", "wu_mamber", "levenshtein"};
-enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT};
+enum optionIndex {HELP, EDIT, PATTERN_FILE, ALGORITHM, COUNT, REPORT_RUNTIME};
 const option::Descriptor usage[] =
 {
-	// PARSER INDEX   TYPE  SHORT  LONG         CHECK FUNCTION     HELP TEXT
-	{HELP,            0,    "h" ,  "help",      option::Arg::None, "--help,-h\t Print usage and exit."},
-	{EDIT,            0,    "e",   "edit",      Arg::NonEmpty,     "--edit,-e e_max\t The maxium edit distance when searching for approximate patterns."},
-	{PATTERN_FILE,    0,    "p",   "pattern",   Arg::NonEmpty,     "--pattern,-p patternfile\t A file with the patterns that should be searched."},
-	{ALGORITHM,       0,    "a",   "algorithm", Arg::NonEmpty,     std::string("--algorithm,-a algorithm_name\t Which algorithm to use. Options are: " + utils::join(algorithms, ",")).c_str()},
-	{COUNT,           0,    "c",   "count",     option::Arg::None, "--count,-c\t Only print the total number of occurrences found on each file."},
+	// INDEX        TYPE  SHORT  LONG               CHECK FUNCTION     HELP TEXT
+	{HELP,          0,    "h",   "help",            option::Arg::None, "--help,-h\t Print usage and exit."},
+	{EDIT,          0,    "e",   "edit",      	    Arg::NonEmpty,     "--edit,-e e_max\t The maxium edit distance when searching for approximate patterns."},
+	{PATTERN_FILE,  0,    "p",   "pattern",         Arg::NonEmpty,     "--pattern,-p patternfile\t A file with the patterns that should be searched."},
+	{ALGORITHM,     0,    "a",   "algorithm",       Arg::NonEmpty,     std::string("--algorithm,-a algorithm_name\t Which algorithm to use. Options are: " + utils::join(algorithms, ",")).c_str()},
+	{COUNT,         0,    "c",   "count",           option::Arg::None, "--count,-c\t Only print the total number of occurrences found on each file."},
+	{REPORT_RUNTIME,0,    "r",   "report-runtime",  option::Arg::None, "--report-runtime,-c\t Write to a csv file the runtime of pattern on each file."},
 	{0,0,0,0,0,0}
 };
 
@@ -54,9 +58,15 @@ int main(int argc, char** argv)
 	 std::vector<data::PatternOccurrence> (*search_function)(std::string,std::string,int) = NULL;
 	 int edit = 0;
 	 bool count = false;
+	 bool report = false;
 	 std::string pattern_file = "";
 	 std::string pattern = "";
 	 std::vector<std::string> text_files;
+
+	 std::vector<std::string> runtimes;
+	 std::ostringstream report_line;
+	 std::chrono::high_resolution_clock::time_point report_start;
+	 std::chrono::high_resolution_clock::time_point report_end;
 
 	 argc-=(argc>0); argv+=(argc>0); // skip program name argv[0] if present
 	 option::Stats  stats(usage, argc, argv);
@@ -76,10 +86,8 @@ int main(int argc, char** argv)
 
 	 if (options[EDIT]) edit = std::stoi(options[EDIT].arg);
 	 if (options[PATTERN_FILE]) pattern_file = options[PATTERN_FILE].arg;
-	 if (options[COUNT])
-	 {
-		 	count = true;
-	 }
+	 if (options[COUNT]) count = true;
+	 if (options[REPORT_RUNTIME]) report = true;
 
 	 if (options[ALGORITHM])
 	 {
@@ -157,19 +165,6 @@ int main(int argc, char** argv)
 				text_files.push_back(parse.nonOption(i));
 			}
 	 }
-
-	// // DEBUG: print args
-	// std::cout << "###################### ARGS ######################" << std::endl;
-	// std::cout << "Pattern: '" << pattern << "'" << std::endl;
-	// std::cout << "Count: " << (count ? "yes" : "no") << std::endl;
-	// std::cout << "Edit: " << edit << std::endl;
-	// std::cout << "Algorithm: " << algorithm << std::endl;
-	// std::cout << "Pattern File: " << pattern_file << std::endl;
-	// std::cout << "Text Files: " << std::endl;
-	// for (std::vector<std::string>::iterator it = text_files.begin(); it < text_files.end(); it++)
-	// {
-	// 	std::cout << "\t" << *it << std::endl;
-	// }
 	 
 	// setting up the patterns
 	std::vector<std::string> patterns;
@@ -189,46 +184,105 @@ int main(int argc, char** argv)
 		patterns.push_back(pattern);
 	}
 	
-	for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
+	if (count)
 	{
-		std::cout << "# PATTERN: '" << *pat << std::endl;
+		int file_occs = 0;
 		for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
 		{
-			std::vector<data::PatternOccurrence> results = search_function(*tf, *pat, edit);
-			if (results.size() > 0)
+			file_occs = 0;
+			for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
 			{
-				std::cout << "## FILE: '" << *tf << std::endl;
-				if (count)
+				if (report) report_start = std::chrono::high_resolution_clock::now();
+				file_occs += search_function(*tf, *pat, edit).size();
+				if (report)
 				{
-					std::cout << results.size() << std::endl;
-				}
-				else
-				{
-					std::map<int, bool> lines_to_print;
-					for (std::vector<data::PatternOccurrence>::iterator it2 = results.begin(); it2 < results.end(); it2++)
-					{
-						data::PatternOccurrence occ = *it2;
-						// first time printing this line
-						if (lines_to_print.count(occ.line) == 0)
-						{
-							 lines_to_print[occ.line] = true;
-						}
-					}
+					report_end = std::chrono::high_resolution_clock::now();
 
-					// print the actual lines
-					std::ifstream file(*tf);
-					std::string line;
-					int line_count = 0;
-					while (std::getline(file, line))
+					report_line.str("");
+					report_line.clear();
+
+					report_line << *tf << "," << *pat << "," ;
+					report_line << edit << ",";
+					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
+
+					runtimes.push_back(report_line.str());
+				}
+			}
+			if (file_occs > 0)
+			{
+				std::cout << *tf << ":" << file_occs << std::endl;
+			}
+		}
+	}
+	else
+	{
+		std::map<int, bool> lines_to_print;
+		for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
+		{
+			lines_to_print.clear();
+			for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
+			{
+				if (report) report_start = std::chrono::high_resolution_clock::now();
+				std::vector<data::PatternOccurrence> results = search_function(*tf, *pat, edit);
+				if (report)
+				{
+					report_end = std::chrono::high_resolution_clock::now();
+
+					report_line.str("");
+					report_line.clear();
+
+					report_line << *tf << "," << *pat << "," ;
+					report_line << edit << ",";
+					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
+
+					runtimes.push_back(report_line.str());
+				}
+
+				for (std::vector<data::PatternOccurrence>::iterator it2 = results.begin(); it2 < results.end(); it2++)
+				{
+					data::PatternOccurrence occ = *it2;
+					if (lines_to_print.count(occ.line) == 0)	// first time printing this line
 					{
-						// print this line
-						if (lines_to_print.count(line_count) != 0) std::cout << line << std::endl;
-						line_count++;
+						lines_to_print[occ.line] = true;
 					}
 				}
+			}
+
+			// print the actual lines
+			std::ifstream file(*tf);
+			std::string line;
+			int line_count = 0;
+			while (std::getline(file, line))
+			{
+				// print this line
+				if (lines_to_print.count(line_count) != 0) std::cout << line << std::endl;
+				line_count++;
 			}
 		}
 	}
 
-	 return 0;
+	if (report)
+	{
+		std::ostringstream ss;
+
+		ss << "runtime_report/";
+		ss << algorithm << "/";
+		
+		system(std::string("mkdir -p " + ss.str()).c_str());
+
+		ss << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		ss << ".csv";
+
+		std::ofstream out(ss.str().c_str());
+		out << "filename,pattern,edit_distance,runtime" << std::endl;
+
+		for (std::vector<std::string>::iterator it = runtimes.begin(); it != runtimes.end(); it++)
+		{
+			out << *it;
+		}
+
+		out.close();
+	}
+
+	return 0;
 }

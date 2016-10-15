@@ -50,6 +50,8 @@ namespace levenshtein {
 			line_count++;
 		}
 
+		file.close();
+
 		return results;
 	}
 }

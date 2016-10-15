@@ -27,6 +27,8 @@ namespace brute_force {
 			line_count++;
 		}
 
+		file.close();
+
 		return results;
 	}
 }
