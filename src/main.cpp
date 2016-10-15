@@ -1,5 +1,4 @@
 #include <chrono>
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -263,17 +262,7 @@ int main(int argc, char** argv)
 
 	if (report)
 	{
-		std::ostringstream ss;
-
-		ss << "runtime_report/";
-		ss << algorithm << "/";
-		
-		system(std::string("mkdir -p " + ss.str()).c_str());
-
-		ss << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		ss << ".csv";
-
-		std::ofstream out(ss.str().c_str());
+		std::ofstream out("runtime.csv");
 		out << "filename,pattern,edit_distance,runtime" << std::endl;
 
 		for (std::vector<std::string>::iterator it = runtimes.begin(); it != runtimes.end(); it++)
