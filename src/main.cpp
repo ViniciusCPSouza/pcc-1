@@ -202,7 +202,7 @@ int main(int argc, char** argv)
 					report_line.str("");
 					report_line.clear();
 
-					report_line << *tf << "," << *pat << "," ;
+					report_line << pat->length() << "," ;
 					report_line << edit << ",";
 					report_line << single_file_occs << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 					report_line.str("");
 					report_line.clear();
 
-					report_line << *tf << "," << *pat << "," ;
+					report_line << pat->length() << "," ;
 					report_line << edit << ",";
 					report_line << results.size() << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
 	if (report)
 	{
 		std::ofstream out("runtime.csv");
-		out << "filename,pattern,edit_distance,matches,runtime" << std::endl;
+		out << "pattern_size,edit_distance,matches,runtime" << std::endl;
 
 		for (std::vector<std::string>::iterator it = runtimes.begin(); it != runtimes.end(); it++)
 		{
