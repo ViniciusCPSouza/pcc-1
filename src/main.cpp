@@ -1,5 +1,4 @@
 #include <chrono>
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -187,13 +186,15 @@ int main(int argc, char** argv)
 	if (count)
 	{
 		int file_occs = 0;
+		int single_file_occs = 0;
 		for (std::vector<std::string>::iterator tf = text_files.begin(); tf < text_files.end(); tf++)
 		{
 			file_occs = 0;
 			for (std::vector<std::string>::iterator pat = patterns.begin(); pat < patterns.end(); pat++)
 			{
 				if (report) report_start = std::chrono::high_resolution_clock::now();
-				file_occs += search_function(*tf, *pat, edit).size();
+				single_file_occs = search_function(*tf, *pat, edit).size();
+				file_occs += single_file_occs;
 				if (report)
 				{
 					report_end = std::chrono::high_resolution_clock::now();
@@ -201,8 +202,9 @@ int main(int argc, char** argv)
 					report_line.str("");
 					report_line.clear();
 
-					report_line << *tf << "," << *pat << "," ;
+					report_line << pat->length() << "," ;
 					report_line << edit << ",";
+					report_line << single_file_occs << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
 
 					runtimes.push_back(report_line.str());
@@ -231,8 +233,9 @@ int main(int argc, char** argv)
 					report_line.str("");
 					report_line.clear();
 
-					report_line << *tf << "," << *pat << "," ;
+					report_line << pat->length() << "," ;
 					report_line << edit << ",";
+					report_line << results.size() << ",";
 					report_line <<  std::chrono::duration_cast<std::chrono::nanoseconds>(report_end - report_start).count() << std::endl;
 
 					runtimes.push_back(report_line.str());
@@ -263,18 +266,8 @@ int main(int argc, char** argv)
 
 	if (report)
 	{
-		std::ostringstream ss;
-
-		ss << "runtime_report/";
-		ss << algorithm << "/";
-		
-		system(std::string("mkdir -p " + ss.str()).c_str());
-
-		ss << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		ss << ".csv";
-
-		std::ofstream out(ss.str().c_str());
-		out << "filename,pattern,edit_distance,runtime" << std::endl;
+		std::ofstream out("runtime.csv");
+		out << "pattern_size,edit_distance,matches,runtime" << std::endl;
 
 		for (std::vector<std::string>::iterator it = runtimes.begin(); it != runtimes.end(); it++)
 		{

@@ -6,7 +6,7 @@ namespace shift_or {
 		std::vector<data::PatternOccurrence> results;
 
 		// supporting pattern with length up to 64 characters
-		if (pattern.length() <= 63)
+		if (pattern.length() <= 64)
 		{
 			std::vector<int64_t> bitMatrix = utils::getBitMatrix(pattern);
 

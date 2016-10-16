@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-EXACT_ALGORITHMS=("kmp" "shift_or")
-FUZZY_ALGORITHMS=("levenshtein" "wu_mamber")
+EXACT_ALGORITHMS=("brute_force" "kmp" "shift_or")
+FUZZY_ALGORITHMS=("wu_mamber" "levenshtein")
 
-DATA_FOLDER="test_data"
+DATA_FOLDER="datasets"
 TEXT_FOLDER="txt"
 PATTERN_FILE="patterns.txt"
 OUTPUT_FOLDER="test_results"
@@ -17,24 +17,41 @@ fi
 
 for dataset in $DATA_FOLDER/*; do
 	dataset_name=`basename "$dataset"`
-	# gt_folder="$OUTPUT_FOLDER/$dataset_name/gt"
+	outpur_folder="$OUTPUT_FOLDER/$dataset_name/"
 
-	# # if the ground truth wasn't generated it, do it
-	# if [ ! "$(ls -A $gt_folder)" ]
-	# then
-	#   mkdir -p "$gt_folder"
+	mkdir -p "$outpur_folder"
 
-	#   cd "$dataset/$TEXT_FOLDER/"
+	echo "Dataset: ${dataset_name}"
 
-	#   for text_file in *.txt; do
-	#   	echo -n $text_file
-	#   	echo -n ":"
-	#   	echo `grep -o -f "../$PATTERN_FILE" $text_file | wc -l`
-	#   done
+	# exact matching
+	if [[ "${dataset_name}" == *E0 ]]
+	then
+		echo "EXACT!"
+		for a in "${EXACT_ALGORITHMS[@]}"
+		do
+		   echo "Running '$a'"
+		   ./bin/pmt -a "$a" --count --report-runtime --pattern "$dataset/patterns.txt" $dataset/txt/* > output.txt
 
-	#   cd "../../.."
+		   algorithm_folder="$outpur_folder/$a"
 
-	# fi
+		   mkdir -p "$algorithm_folder"
+		   mv runtime.csv "$algorithm_folder/"
+		   mv output.txt "$algorithm_folder/"
+		done
+	# fuzzy matching
+	else
+		echo "FUZZY!"
+		for a in "${FUZZY_ALGORITHMS[@]}"
+		do
+		   echo "Running '$a'"
+		   ./bin/pmt -a "$a" --edit "${dataset: -1}" --count --report-runtime --pattern "$dataset/patterns.txt" $dataset/txt/* > output.txt
 
+		   algorithm_folder="$outpur_folder/$a"
+
+		   mkdir -p "$algorithm_folder"
+		   mv runtime.csv "$algorithm_folder/"
+		   mv output.txt "$algorithm_folder/"
+		done
+	fi
 	
 done
